@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<script>(function(){function fmt(a){if(a instanceof Error)return a.message;if(typeof a==="object"&&a!==null){try{return JSON.stringify(a)}catch(e){return String(a)}}return String(a)}function send(t,m,l){try{parent.postMessage({__stc:1,type:t,msg:m,line:l},"*")}catch(e){}}["log","info","warn","error"].forEach(function(m){var o=console[m];console[m]=function(){send(m,Array.prototype.map.call(arguments,fmt).join(" "));if(o)o.apply(console,arguments)}});window.addEventListener("error",function(e){send("error",e.message,e.lineno)});window.addEventListener("unhandledrejection",function(e){send("error","Promise: "+fmt(e.reason))});})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scratch 3 Studio</title>
+<style>
+  :root {
+    --header-bg: #4d97ff;
+    --header-dark: #3373cc;
+    --bg-main: #f9f9f9;
+    --border-color: #d9d9d9;
+    --text-main: #575e75;
+    --motion: #4c97ff;
+    --looks: #9966ff;
+    --sound: #cf63cf;
+    --events: #ffbf00;
+    --control: #ffab19;
+    --sensing: #5cb1d6;
+    --operators: #59c059;
+    --variables: #ff8c1a;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    user-select: none;
+  }
+
+  body {
+    background: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    height: 48px;
+    background: var(--header-bg);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 20;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 900;
+    font-size: 17px;
+  }
+
+  .logo-badge {
+    background: #ffab19;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .project-title {
+    background: rgba(255,255,255,0.22);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 6px;
+    color: #fff;
+    padding: 5px 9px;
+    font-size: 13px;
+    font-weight: 600;
+    width: 175px;
+    outline: none;
+  }
+  .project-title:focus { background: #fff; color: #333; }
+
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.32);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.15s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.3); }
+  .btn-primary { background: #ffab19; border-color: #e09100; color: #fff; }
+  .btn-primary:hover { background: #f29d00; }
+  .btn-success { background: #28a745; border-color: #218838; color: #fff; }
+  .btn-success:hover { background: #218838; }
+  .btn-light { background: #fff; color: var(--text-main); border: 1px solid var(--border-color); }
+  .btn-light:hover { background: #f0f4ff; border-color: var(--header-bg); }
+  .btn-danger { background: #ff6680; border-color: #e64d66; color: #fff; }
+
+  .main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    background: #fff;
+    min-width: 0;
+  }
+
+  .tabs-bar {
+    height: 38px;
+    background: #e9eef2;
+    display: flex;
+    align-items: flex-end;
+    padding-left: 8px;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    padding: 7px 14px;
+    background: #d9e3f0;
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tab.active {
+    background: #fff;
+    color: var(--header-bg);
+    height: 34px;
+    margin-bottom: -1px;
+    border-bottom: 1px solid #fff;
+  }
+
+  .tab-content { display: none; flex: 1; overflow: hidden; }
+  .tab-content.active { display: flex; }
+
+  .categories-sidebar {
+    width: 74px;
+    border-right: 1px solid var(--border-color);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .cat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    cursor: pointer;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .cat-item:hover { background: #f2f6fc; }
+  .cat-item.active { background: #e9f1fc; color: var(--header-bg); }
+  .cat-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
+
+  .blocks-palette {
+    width: 255px;
+    background: #f9f9f9;
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .palette-header {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .scripts-workspace {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background-color: #f9fbfd;
+    background-image: radial-gradient(#cfd8e3 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+  }
+
+  .workspace-hint {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    max-width: 280px;
+    pointer-events: none;
+  }
+
+  .s-block {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: grab;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+    width: fit-content;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+  .s-block.hat { border-radius: 16px 16px 6px 6px; padding-top: 10px; }
+  .s-block input, .s-block select {
+    background: #fff;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    outline: none;
+    min-width: 32px;
+    text-align: center;
+  }
+  .s-block input[type="text"] { min-width: 60px; text-align: left; }
+
+  .script-stack {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 4px;
+    border-radius: 8px;
+    z-index: 5;
+  }
+  .stack-block-wrap { display: flex; align-items: center; gap: 4px; margin-bottom: -1px; }
+  .block-del-btn {
+    background: rgba(0,0,0,0.25);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .stack-block-wrap:hover .block-del-btn { display: inline-flex; }
+
+  .c-block-body {
+    margin-left: 16px;
+    padding: 4px 6px 4px 8px;
+    border-left: 10px solid var(--control);
+    display: flex;
+    flex-direction: column;
+    min-height: 24px;
+    background: rgba(255, 171, 25, 0.08);
+    border-radius: 0 6px 6px 0;
+  }
+  .c-block-footer {
+    height: 13px;
+    min-width: 115px;
+    background: var(--control);
+    border-radius: 0 6px 6px 6px;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+
+  /* Costumes & Texture Editor */
+  .costumes-layout, .sounds-layout { display: flex; width: 100%; height: 100%; }
+  .costumes-list {
+    width: 145px;
+    background: #f2f5f8;
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .costume-card {
+    background: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .costume-card.active { border-color: var(--header-bg); background: #eef5ff; }
+  .costume-card img { width: 60px; height: 60px; object-fit: contain; }
+  .costume-card .c-name { font-size: 11px; font-weight: 700; margin-top: 4px; }
+
+  .paint-area { flex: 1; display: flex; flex-direction: column; padding: 12px; background: #f9f9f9; overflow-y: auto; }
+  .paint-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    background: #fff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 10px;
+  }
+  .tool-btn {
+    padding: 5px 9px;
+    border: 1px solid var(--border-color);
+    background: #f5f7fa;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tool-btn.active { background: var(--header-bg); color: #fff; border-color: var(--header-dark); }
+  .canvas-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9eef2;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+  }
+  #paint-canvas {
+    background-color: #fff;
+    background-image: linear-gradient(45deg, #efefef 25%, transparent 25%), linear-gradient(-45deg, #efefef 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #efefef 75%), linear-gradient(-45deg, transparent 75%, #efefef 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    cursor: crosshair;
+  }
+
+  /* Sounds Tab */
+  .sounds-list {
+    width: 200px;
+    background: #f2f5f8;
+    border-right: 1px solid var(--border-color);
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sound-item {
+    background: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 9px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .sound-item.active { border-color: var(--sound); background: #fdf2fd; }
+  .sound-studio { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+  .wave-box {
+    height: 130px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Library & Projects Tab */
+  .library-layout { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 12px; }
+  .lib-card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    text-align: center;
+  }
+  .lib-card img { width: 68px; height: 68px; object-fit: contain; }
+
+  /* Right Stage Pane */
+  .stage-pane {
+    width: 496px;
+    background: #f2f5f8;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 8px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .stage-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .flag-btn, .stop-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .flag-btn { background: #e8f8ed; color: #28a745; }
+  .stop-btn { background: #ffebee; color: #e53935; }
+
+  .stage-wrapper {
+    width: 480px;
+    height: 360px;
+    background: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  #stage-canvas { display: block; width: 480px; height: 360px; cursor: pointer; }
+
+  .var-monitor {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .var-badge { background: var(--variables); color: #fff; padding: 2px 7px; border-radius: 4px; }
+
+  .sprite-props {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 12px;
+  }
+  .prop-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+  .prop-field { display: flex; align-items: center; gap: 4px; font-weight: 700; }
+  .prop-field input, .prop-field select {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 3px 7px;
+    width: 62px;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+  }
+  .prop-field input.name-input { width: 110px; text-align: left; }
+
+  .sprites-section {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+  }
+  .sprites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+    overflow-y: auto;
+  }
+  .sprite-thumb {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    background: #fff;
+  }
+  .sprite-thumb.active { border-color: var(--header-bg); background: #eef5ff; }
+  .sprite-thumb img { width: 46px; height: 46px; object-fit: contain; }
+  .sprite-thumb .s-title { font-size: 11px; font-weight: 700; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sprite-del {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: var(--header-bg);
+    color: #fff;
+    border: 2px solid #fff;
+    font-size: 10px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .sprite-thumb:hover .sprite-del { display: flex; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 580px;
+    max-width: 94vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .modal-header {
+    background: var(--header-bg);
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 800;
+  }
+  .modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 12px;
+  }
+  .preset-item {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .preset-item:hover { border-color: var(--header-bg); background: #f0f6ff; }
+  .preset-item img { width: 70px; height: 70px; object-fit: contain; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #333;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 960px) {
+    .main-container { flex-direction: column; overflow-y: auto; }
+    .stage-pane { width: 100%; align-items: center; }
+    .editor-pane { min-height: 460px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span>🐱 SCRATCH 3</span>
+    <span class="logo-badge">STUDIO</span>
+  </div>
+  <input type="text" id="project-name" class="project-title" value="Мой проект">
+  <div class="header-actions">
+    <button class="btn" id="btn-new-project">📄 Новый</button>
+    <button class="btn btn-success" id="btn-save-project">💾 Сохранить</button>
+    <button class="btn btn-primary" id="btn-open-projects">📂 Открыть проект</button>
+    <button class="btn" id="btn-backdrop">🖼️ Фон</button>
+    <button class="btn" id="btn-export-project">⬇️ JSON</button>
+    <label class="btn" style="cursor:pointer;">
+      ⬆️ Импорт
+      <input type="file" id="input-import-project" accept=".json" style="display:none;">
+    </label>
+  </div>
+</header>
+
+<div class="main-container">
+  <div class="editor-pane">
+    <div class="tabs-bar">
+      <div class="tab active" data-tab="code">🧩 Код</div>
+      <div class="tab" data-tab="costumes">🎨 Костюмы и Текстуры</div>
+      <div class="tab" data-tab="sounds">🔊 Звуки и Запись</div>
+      <div class="tab" data-tab="library">📚 Библиотека и Проекты</div>
+    </div>
+
+    <!-- TAB 1: CODE -->
+    <div class="tab-content active" id="tab-code">
+      <div class="categories-sidebar" id="categories-list"></div>
+      <div class="blocks-palette" id="blocks-palette"></div>
+      <div class="scripts-workspace" id="scripts-workspace">
+        <div class="workspace-hint">
+          💡 <b>Подсказка:</b> Нажмите на блок в палитре, чтобы добавить его. Кликните по стеку блоков или по 🚩 для запуска!
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: COSTUMES -->
+    <div class="tab-content" id="tab-costumes">
+      <div class="costumes-layout">
+        <div class="costumes-list" id="costumes-list"></div>
+        <div class="paint-area">
+          <div class="paint-toolbar">
+            <button class="tool-btn active" data-tool="brush">🖌️ Кисть</button>
+            <button class="tool-btn" data-tool="eraser">🧽 Ластик</button>
+            <button class="tool-btn" data-tool="rect">⬜ Квадрат</button>
+            <button class="tool-btn" data-tool="circle">⭕ Круг</button>
+            <input type="color" id="brush-color" value="#ff8c1a" title="Цвет">
+            <label style="font-size:12px;font-weight:700;">Размер:
+              <input type="range" id="brush-size" min="2" max="36" value="8" style="width:70px;">
+            </label>
+            <button class="btn btn-light" id="btn-gen-texture">✨ Текстура</button>
+            <button class="btn btn-light" id="btn-clear-canvas">🗑️ Очистить</button>
+            <button class="btn btn-primary" id="btn-new-costume">+ Костюм</button>
+            <button class="btn btn-light" id="btn-export-png">⬇️ PNG</button>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="paint-canvas" width="320" height="320"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SOUNDS -->
+    <div class="tab-content" id="tab-sounds">
+      <div class="sounds-layout">
+        <div class="sounds-list" id="sounds-list"></div>
+        <div class="sound-studio">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <h3 id="current-sound-title">Звук: Мяу</h3>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btn-play-sound">▶️ Играть</button>
+              <button class="btn btn-danger" id="btn-record-sound">🎙️ Запись</button>
+              <button class="btn btn-light" id="btn-save-sound-lib">⭐ В библиотеку</button>
+              <button class="btn btn-light" id="btn-export-sound">⬇️ Экспорт</button>
+            </div>
+          </div>
+          <div class="wave-box">
+            <canvas id="wave-canvas" width="520" height="120"></canvas>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-light" data-synth="meow">🐱 Мяу</button>
+            <button class="btn btn-light" data-synth="laser">🔫 Лазер</button>
+            <button class="btn btn-light" data-synth="coin">🪙 Монетка</button>
+            <button class="btn btn-light" data-synth="drum">🥁 Барабан</button>
+            <button class="btn btn-light" data-synth="jump">🦘 Прыжок</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: LIBRARY & SAVED PROJECTS -->
+    <div class="tab-content" id="tab-library">
+      <div class="library-layout">
+        <div>
+          <h3 style="margin-bottom:8px;">📂 Сохранённые проекты в среде (LocalStorage)</h3>
+          <div class="lib-grid" id="lib-projects-grid"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px;">🐱 Сохранённые спрайты (LocalStorage)</h3>
+          <div class="lib-grid" id="lib-sprites-grid"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px;">🔊 Сохранённые звуки (LocalStorage)</h3>
+          <div class="lib-grid" id="lib-sounds-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Stage & Sprites -->
+  <div class="stage-pane">
+    <div class="stage-controls">
+      <div style="display:flex;gap:8px;">
+        <button class="flag-btn" id="btn-green-flag" title="Запустить">🚩</button>
+        <button class="stop-btn" id="btn-stop-all" title="Остановить">🛑</button>
+      </div>
+      <div id="status-text" style="font-size:12px;font-weight:700;">Готов к запуску</div>
+    </div>
+
+    <div class="stage-wrapper">
+      <canvas id="stage-canvas" width="480" height="360"></canvas>
+      <div class="var-monitor">
+        <span>Счет:</span>
+        <span class="var-badge" id="var-score-display">0</span>
+      </div>
+    </div>
+
+    <div class="sprite-props">
+      <div class="prop-row">
+        <div class="prop-field">
+          <span>Спрайт:</span>
+          <input type="text" id="prop-name" class="name-input">
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-light" id="btn-export-sprite" style="padding:4px 8px;">⬇️ JSON</button>
+          <button class="btn btn-primary" id="btn-save-sprite-lib" style="padding:4px 8px;">⭐ В библиотеку</button>
+        </div>
+      </div>
+      <div class="prop-row">
+        <div class="prop-field"><span>X:</span><input type="number" id="prop-x" value="0"></div>
+        <div class="prop-field"><span>Y:</span><input type="number" id="prop-y" value="0"></div>
+        <div class="prop-field"><span>Размер %:</span><input type="number" id="prop-size" value="100" min="10" max="400"></div>
+      </div>
+      <div class="prop-row">
+        <div class="prop-field"><span>Направл.:</span><input type="number" id="prop-dir" value="90"></div>
+        <div class="prop-field"><span>Видим:</span><input type="checkbox" id="prop-visible" checked style="width:16px;height:16px;"></div>
+        <div class="prop-field">
+          <span>Вращение:</span>
+          <select id="prop-rot-style" style="width:92px;">
+            <option value="all around">Кругом</option>
+            <option value="left-right">Влево-вправо</option>
+            <option value="dont rotate">Не вращать</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="sprites-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:800;">Спрайты на сцене</span>
+        <div style="display:flex;gap:6px;">
+          <label class="btn btn-light" style="padding:4px 8px;cursor:pointer;">
+            ⬆️ Загрузить
+            <input type="file" id="input-import-sprite" accept=".json,image/*" style="display:none;">
+          </label>
+          <button class="btn btn-primary" id="btn-add-sprite" style="padding:4px 10px;">+ Спрайт</button>
+        </div>
+      </div>
+      <div class="sprites-grid" id="sprites-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Universal Modal -->
+<div class="modal-backdrop" id="library-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-title">Выберите элемент</span>
+      <button class="btn" id="btn-close-modal" style="padding:2px 8px;">✕</button>
+    </div>
+    <div class="modal-body" id="modal-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Сохранено!</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // --- TEXTURE GENERATOR ---
+  function createRichTexture(type) {
+    const c = document.createElement("canvas");
+    c.width = 120;
+    c.height = 120;
+    const ctx = c.getContext("2d");
+
+    if (type === "cat1" || type === "cat2") {
+      ctx.save();
+      ctx.translate(60, 62);
+      ctx.beginPath();
+      ctx.moveTo(-22, 22);
+      ctx.quadraticCurveTo(-52, 10, -45, -12);
+      ctx.quadraticCurveTo(-38, -22, -32, -8);
+      ctx.quadraticCurveTo(-36, 8, -18, 16);
+      ctx.fillStyle = "#ff9914";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#332211";
+      ctx.stroke();
+
+      const step = type === "cat2" ? 8 : 0;
+      ctx.fillStyle = "#ff9914";
+      ctx.beginPath(); ctx.roundRect(-14 - step, 22, 11, 22, 5); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(4 + step, 22, 11, 22, 5); ctx.fill(); ctx.stroke();
+
+      const bodyGrad = ctx.createLinearGradient(-15, 0, 15, 28);
+      bodyGrad.addColorStop(0, "#ffad33");
+      bodyGrad.addColorStop(1, "#e67e00");
+      ctx.beginPath(); ctx.ellipse(0, 16, 17, 15, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bodyGrad; ctx.fill(); ctx.stroke();
+
+      ctx.beginPath(); ctx.ellipse(4, 17, 9, 10, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff5e6"; ctx.fill();
+
+      const headGrad = ctx.createRadialGradient(-4, -18, 4, 0, -14, 28);
+      headGrad.addColorStop(0, "#ffb84d");
+      headGrad.addColorStop(1, "#f08200");
+      ctx.beginPath(); ctx.ellipse(2, -14, 25, 21, 0, 0, Math.PI * 2);
+      ctx.fillStyle = headGrad; ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = "#ff9914";
+      ctx.beginPath(); ctx.moveTo(-16, -28); ctx.lineTo(-22, -46); ctx.lineTo(-4, -33); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(10, -33); ctx.lineTo(24, -46); ctx.lineTo(22, -26); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.ellipse(7, -8, 16, 11, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-2, -17, 5.5, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(13, -17, 5.5, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = "#1a1a1a";
+      ctx.beginPath(); ctx.arc(0, -17, 2.6, 0, Math.PI * 2); ctx.arc(15, -17, 2.6, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = "#ff6633";
+      ctx.beginPath(); ctx.ellipse(8, -11, 3.5, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+
+      ctx.beginPath(); ctx.arc(7, -7, 6, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.strokeStyle = "#332211"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+    } else if (type === "robot") {
+      const grad = ctx.createLinearGradient(25, 15, 95, 105);
+      grad.addColorStop(0, "#cfd8dc"); grad.addColorStop(1, "#546e7a");
+      ctx.fillStyle = grad; ctx.strokeStyle = "#263238"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, 24); ctx.lineTo(60, 8); ctx.stroke();
+      ctx.fillStyle = "#ff3d00"; ctx.beginPath(); ctx.arc(60, 8, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.roundRect(34, 22, 52, 36, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#00e5ff"; ctx.beginPath(); ctx.roundRect(41, 30, 38, 14, 4); ctx.fill();
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.roundRect(30, 62, 60, 42, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ffea00"; ctx.beginPath(); ctx.arc(60, 82, 9, 0, Math.PI * 2); ctx.fill();
+    } else if (type === "star") {
+      const grad = ctx.createRadialGradient(60, 60, 5, 60, 60, 48);
+      grad.addColorStop(0, "#fff59d"); grad.addColorStop(1, "#ff8f00");
+      ctx.fillStyle = grad; ctx.strokeStyle = "#e65100"; ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 === 0 ? 48 : 20;
+        const a = (i * Math.PI) / 5 - Math.PI / 2;
+        const x = 60 + Math.cos(a) * r, y = 60 + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    } else if (type === "gem") {
+      const grad = ctx.createLinearGradient(30, 20, 90, 100);
+      grad.addColorStop(0, "#80d8ff"); grad.addColorStop(1, "#01579b");
+      ctx.fillStyle = grad; ctx.strokeStyle = "#003c8f"; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(60, 14); ctx.lineTo(96, 46); ctx.lineTo(60, 106); ctx.lineTo(24, 46); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else if (type === "rocket") {
+      ctx.save(); ctx.translate(60, 60);
+      ctx.fillStyle = "#ff6d00";
+      ctx.beginPath(); ctx.moveTo(-12, 34); ctx.lineTo(0, 54); ctx.lineTo(12, 34); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#d50000";
+      ctx.beginPath(); ctx.moveTo(-16, 12); ctx.lineTo(-32, 36); ctx.lineTo(-14, 32); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(16, 12); ctx.lineTo(32, 36); ctx.lineTo(14, 32); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#eceff1"; ctx.strokeStyle = "#37474f"; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.ellipse(0, -2, 18, 38, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#29b6f6"; ctx.beginPath(); ctx.arc(0, -4, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    return c.toDataURL("image/png");
+  }
+
+  function createBackdropTexture(type) {
+    const c = document.createElement("canvas");
+    c.width = 480;
+    c.height = 360;
+    const ctx = c.getContext("2d");
+
+    if (type === "white") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 480, 360);
+    } else if (type === "grid") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 480, 360);
+      ctx.strokeStyle = "#e0e7ef";
+      for (let x = 0; x <= 480; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 360); ctx.stroke(); }
+      for (let y = 0; y <= 360; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(480, y); ctx.stroke(); }
+      ctx.strokeStyle = "#ff8c1a"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(240, 0); ctx.lineTo(240, 360); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 180); ctx.lineTo(480, 180); ctx.stroke();
+    } else if (type === "nature") {
+      const sky = ctx.createLinearGradient(0, 0, 0, 260);
+      sky.addColorStop(0, "#4fc3f7"); sky.addColorStop(1, "#e1f5fe");
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, 480, 360);
+      ctx.fillStyle = "#ffee58"; ctx.beginPath(); ctx.arc(410, 60, 32, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#81c784"; ctx.beginPath(); ctx.arc(130, 300, 160, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = "#66bb6a"; ctx.beginPath(); ctx.arc(360, 310, 180, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = "#4caf50"; ctx.fillRect(0, 265, 480, 95);
+    } else if (type === "space") {
+      const bg = ctx.createLinearGradient(0, 0, 0, 360);
+      bg.addColorStop(0, "#090d16"); bg.addColorStop(1, "#1b2735");
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, 480, 360);
+      ctx.fillStyle = "#ffffff";
+      for (let i = 0; i < 65; i++) {
+        ctx.beginPath(); ctx.arc((i * 73) % 480, (i * 41) % 360, ((i % 3) + 1) * 0.7, 0, Math.PI * 2); ctx.fill();
+      }
+      const pGrad = ctx.createRadialGradient(110, 100, 10, 120, 110, 45);
+      pGrad.addColorStop(0, "#ffab91"); pGrad.addColorStop(1, "#d84315");
+      ctx.fillStyle = pGrad; ctx.beginPath(); ctx.arc(120, 110, 42, 0, Math.PI * 2); ctx.fill();
+    }
+    return c.toDataURL("image/png");
+  }
+
+  // --- BLOCK DEFINITIONS ---
+  const CATEGORIES = [
+    { id: "motion", name: "Движение", color: "#4c97ff" },
+    { id: "looks", name: "Внешний вид", color: "#9966ff" },
+    { id: "sound", name: "Звук", color: "#cf63cf" },
+    { id: "events", name: "События", color: "#ffbf00" },
+    { id: "control", name: "Управление", color: "#ffab19" },
+    { id: "sensing", name: "Сенсоры", color: "#5cb1d6" },
+    { id: "operators", name: "Операторы", color: "#59c059" },
+    { id: "variables", name: "Переменные", color: "#ff8c1a" }
+  ];
+
+  const BLOCK_DEFS = [
+    { id: "move_steps", cat: "motion", label: "идти {steps} шагов", params: { steps: 10 } },
+    { id: "turn_right", cat: "motion", label: "повернуть ↻ на {deg} градусов", params: { deg: 15 } },
+    { id: "turn_left", cat: "motion", label: "повернуть ↺ на {deg} градусов", params: { deg: 15 } },
+    { id: "goto_xy", cat: "motion", label: "перейти в x: {x} y: {y}", params: { x: 0, y: 0 } },
+    { id: "glide_xy", cat: "motion", label: "плыть {sec} сек в x: {x} y: {y}", params: { sec: 1, x: 50, y: 50 } },
+    { id: "point_dir", cat: "motion", label: "повернуться в направлении {dir}", params: { dir: 90 } },
+    { id: "change_x", cat: "motion", label: "изменить x на {dx}", params: { dx: 10 } },
+    { id: "change_y", cat: "motion", label: "изменить y на {dy}", params: { dy: 10 } },
+    { id: "bounce_edge", cat: "motion", label: "если касается края, оттолкнуться", params: {} },
+
+    { id: "say_sec", cat: "looks", label: "говорить {text} {sec} секунд", params: { text: "Привет!", sec: 2 } },
+    { id: "say", cat: "looks", label: "говорить {text}", params: { text: "Привет!" } },
+    { id: "think_sec", cat: "looks", label: "думать {text} {sec} секунд", params: { text: "Хмм...", sec: 2 } },
+    { id: "next_costume", cat: "looks", label: "следующий костюм", params: {} },
+    { id: "change_size", cat: "looks", label: "изменить размер на {ds}", params: { ds: 10 } },
+    { id: "set_size", cat: "looks", label: "установить размер {size} %", params: { size: 100 } },
+    { id: "show", cat: "looks", label: "показаться", params: {} },
+    { id: "hide", cat: "looks", label: "спрятаться", params: {} },
+
+    { id: "play_sound", cat: "sound", label: "включить звук {sound}", params: { sound: "Мяу" } },
+    { id: "play_note", cat: "sound", label: "играть ноту {note} {sec} сек", params: { note: 60, sec: 0.3 } },
+
+    { id: "when_flag", cat: "events", hat: true, label: "когда 🚩 нажат", params: {} },
+    { id: "when_key", cat: "events", hat: true, label: "когда клавиша {key} нажата", params: { key: "space" } },
+    { id: "when_clicked", cat: "events", hat: true, label: "когда спрайт нажат", params: {} },
+
+    { id: "wait", cat: "control", label: "ждать {sec} секунд", params: { sec: 1 } },
+    { id: "repeat", cat: "control", cBlock: true, label: "повторить {times} раз", params: { times: 10 } },
+    { id: "forever", cat: "control", cBlock: true, label: "повторять всегда", params: {} },
+    { id: "if_edge", cat: "control", cBlock: true, label: "если касается края, то", params: {} },
+
+    { id: "reset_timer", cat: "sensing", label: "сбросить таймер", params: {} },
+    { id: "ask_wait", cat: "sensing", label: "спросить {q} и ждать", params: { q: "Как тебя зовут?" } },
+
+    { id: "random_move", cat: "operators", label: "перейти в случайное место", params: {} },
+    { id: "random_score", cat: "operators", label: "изменить Счет на случайное от {min} до {max}", params: { min: 1, max: 10 } },
+
+    { id: "set_score", cat: "variables", label: "задать Счет значение {val}", params: { val: 0 } },
+    { id: "change_score", cat: "variables", label: "изменить Счет на {val}", params: { val: 1 } }
+  ];
+
+  // --- STORAGE KEYS ---
+  const LS_SPRITES_KEY = "scratch3_studio_sprites_v2";
+  const LS_SOUNDS_KEY = "scratch3_studio_sounds_v2";
+  const LS_PROJECTS_LIST_KEY = "scratch3_studio_projects_list_v2";
+  const LS_ACTIVE_PROJECT_KEY = "scratch3_studio_active_v2";
+
+  // --- APP STATE ---
+  const state = {
+    currentProjectId: null,
+    projectName: "Мой проект",
+    activeCategory: "motion",
+    backdrop: { name: "Природа", dataUrl: createBackdropTexture("nature") },
+    sprites: [],
+    activeSpriteId: null,
+    score: 0,
+    runToken: 0,
+    activeCostumeIndex: 0,
+    activeSoundIndex: 0,
+    paintTool: "brush",
+    isDrawing: false,
+    startX: 0,
+    startY: 0,
+    snapshot: null,
+    selectedStackId: null
+  };
+
+  const imageCache = {};
+  function getCachedImage(dataUrl) {
+    if (!dataUrl) return null;
+    if (!imageCache[dataUrl]) {
+      const img = new Image();
+      img.src = dataUrl;
+      imageCache[dataUrl] = img;
+    }
+    return imageCache[dataUrl];
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove("show"), 2300);
+  }
+
+  // --- AUDIO ---
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playSynthSound(type) {
+    const ctx = ensureAudio();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === "meow") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(760, now + 0.14);
+      osc.frequency.exponentialRampToValueAtTime(340, now + 0.45);
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
+      osc.start(now); osc.stop(now + 0.47);
+    } else if (type === "laser") {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(950, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.25);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.start(now); osc.stop(now + 0.27);
+    } else if (type === "coin") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(987, now);
+      osc.frequency.setValueAtTime(1318, now + 0.08);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now); osc.stop(now + 0.36);
+    } else if (type === "drum") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(42, now + 0.18);
+      gain.gain.setValueAtTime(0.45, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      osc.start(now); osc.stop(now + 0.21);
+    } else {
+      osc.type = "square";
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.exponentialRampToValueAtTime(620, now + 0.22);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+      osc.start(now); osc.stop(now + 0.24);
+    }
+  }
+
+  function playMidiNote(midi, sec) {
+    const ctx = ensureAudio();
+    const now = ctx.currentTime;
+    const freq = 440 * Math.pow(2, (Number(midi) - 69) / 12);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + Number(sec));
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + Number(sec) + 0.02);
+  }
+
+  function playSpriteSound(sprite, soundName) {
+    const snd = (sprite.sounds || []).find(s => s.name === soundName) || (sprite.sounds || [])[0];
+    if (!snd) { playSynthSound("meow"); return; }
+    if (snd.audioDataUrl) {
+      new Audio(snd.audioDataUrl).play().catch(() => {});
+    } else {
+      playSynthSound(snd.synth || "meow");
+    }
+  }
+
+  // --- DEFAULT SPRITE ---
+  function createDefaultCatSprite() {
+    return {
+      id: "sprite_" + Date.now(),
+      name: "Спрайт1",
+      x: 0,
+      y: 0,
+      direction: 90,
+      size: 100,
+      visible: true,
+      rotationStyle: "all around",
+      sayText: "",
+      costumeIndex: 0,
+      costumes: [
+        { name: "Костюм 1", dataUrl: createRichTexture("cat1") },
+        { name: "Костюм 2", dataUrl: createRichTexture("cat2") }
+      ],
+      sounds: [
+        { name: "Мяу", synth: "meow", audioDataUrl: null },
+        { name: "Монетка", synth: "coin", audioDataUrl: null }
+      ],
+      scripts: [
+        {
+          id: "stack_default_1",
+          x: 30,
+          y: 26,
+          blocks: [
+            { uid: "b1", defId: "when_flag", params: {} },
+            { uid: "b2", defId: "say_sec", params: { text: "Привет! Нажми 🚩!", sec: 1.5 } },
+            {
+              uid: "b3",
+              defId: "repeat",
+              params: { times: 4 },
+              children: [
+                { uid: "b4", defId: "move_steps", params: { steps: 20 } },
+                { uid: "b5", defId: "next_costume", params: {} },
+                { uid: "b6", defId: "wait", params: { sec: 0.25 } }
+              ]
+            },
+            { uid: "b7", defId: "play_sound", params: { sound: "Мяу" } }
+          ]
+        }
+      ]
+    };
+  }
+
+  function getActiveSprite() {
+    return state.sprites.find(s => s.id === state.activeSpriteId) || state.sprites[0];
+  }
+
+  // --- PROJECT SAVE & OPEN SYSTEM ---
+  function serializeCurrentProject() {
+    if (!state.currentProjectId) {
+      state.currentProjectId = "proj_" + Date.now();
+    }
+    const nameInput = document.getElementById("project-name");
+    state.projectName = nameInput.value.trim() || "Без названия";
+    return {
+      id: state.currentProjectId,
+      projectName: state.projectName,
+      updatedAt: new Date().toLocaleString("ru-RU"),
+      backdrop: state.backdrop,
+      score: state.score,
+      sprites: state.sprites
+    };
+  }
+
+  function saveProjectToEnvironment() {
+    try {
+      const proj = serializeCurrentProject();
+      const list = JSON.parse(localStorage.getItem(LS_PROJECTS_LIST_KEY) || "[]");
+      const idx = list.findIndex(p => p.id === proj.id);
+      if (idx >= 0) list[idx] = proj;
+      else list.unshift(proj);
+
+      localStorage.setItem(LS_PROJECTS_LIST_KEY, JSON.stringify(list));
+      localStorage.setItem(LS_ACTIVE_PROJECT_KEY, JSON.stringify(proj));
+      loadLocalLibrary();
+      showToast(`Проект «${proj.projectName}» сохранён в среде!`);
+    } catch (e) {
+      showToast("Ошибка сохранения: недостаточно памяти LocalStorage");
+    }
+  }
+
+  function loadProjectData(proj) {
+    if (!proj || !proj.sprites || !proj.sprites.length) return;
+    stopAllScripts();
+    state.currentProjectId = proj.id || ("proj_" + Date.now());
+    state.projectName = proj.projectName || "Открытый проект";
+    document.getElementById("project-name").value = state.projectName;
+    if (proj.backdrop) state.backdrop = proj.backdrop;
+    state.score = Number(proj.score || 0);
+    document.getElementById("var-score-display").textContent = state.score;
+    state.sprites = proj.sprites;
+    selectSprite(state.sprites[0].id);
+    localStorage.setItem(LS_ACTIVE_PROJECT_KEY, JSON.stringify(proj));
+    showToast(`Открыт проект «${state.projectName}»`);
+  }
+
+  function createNewProject() {
+    stopAllScripts();
+    state.currentProjectId = "proj_" + Date.now();
+    state.projectName = "Новый проект";
+    document.getElementById("project-name").value = state.projectName;
+    state.backdrop = { name: "Природа", dataUrl: createBackdropTexture("nature") };
+    state.score = 0;
+    document.getElementById("var-score-display").textContent = "0";
+    state.sprites = [createDefaultCatSprite()];
+    selectSprite(state.sprites[0].id);
+    showToast("Создан новый проект");
+  }
+
+  // --- CATEGORIES & PALETTE ---
+  function renderCategories() {
+    const container = document.getElementById("categories-list");
+    container.innerHTML = "";
+    CATEGORIES.forEach(cat => {
+      const el = document.createElement("div");
+      el.className = "cat-item" + (state.activeCategory === cat.id ? " active" : "");
+      el.innerHTML = `<div class="cat-dot" style="background:${cat.color}"></div><span>${cat.name}</span>`;
+      el.onclick = () => {
+        state.activeCategory = cat.id;
+        renderCategories();
+        renderPalette();
+      };
+      container.appendChild(el);
+    });
+  }
+
+  function buildBlockHTML(def, params, interactiveInputs) {
+    const catObj = CATEGORIES.find(c => c.id === def.cat);
+    const bg = catObj ? catObj.color : "#4c97ff";
+    const html = def.label.replace(/\{(\w+)\}/g, (_, key) => {
+      const val = params[key] !== undefined ? params[key] : "";
+      if (!interactiveInputs) {
+        return `<span style="background:#fff;color:#333;padding:1px 7px;border-radius:10px;">${val}</span>`;
+      }
+      if (key === "key") {
+        const opts = ["space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "a", "w", "s", "d"];
+        return `<select data-param="${key}">${opts.map(o => `<option value="${o}" ${val === o ? "selected" : ""}>${o}</option>`).join("")}</select>`;
+      }
+      if (key === "sound") {
+        const sp = getActiveSprite();
+        const snds = sp && sp.sounds.length ? sp.sounds.map(s => s.name) : ["Мяу"];
+        return `<select data-param="${key}">${snds.map(n => `<option value="${n}" ${val === n ? "selected" : ""}>${n}</option>`).join("")}</select>`;
+      }
+      const isText = typeof val === "string";
+      return `<input type="${isText ? "text" : "number"}" data-param="${key}" value="${String(val).replace(/"/g, "&quot;")}">`;
+    });
+    return { bg, html };
+  }
+
+  function renderPalette() {
+    const palette = document.getElementById("blocks-palette");
+    palette.innerHTML = "";
+    const catObj = CATEGORIES.find(c => c.id === state.activeCategory);
+    const header = document.createElement("div");
+    header.className = "palette-header";
+    header.textContent = catObj ? catObj.name : "";
+    palette.appendChild(header);
+
+    BLOCK_DEFS.filter(b => b.cat === state.activeCategory).forEach(def => {
+      const { bg, html } = buildBlockHTML(def, def.params, false);
+      const el = document.createElement("div");
+      el.className = "s-block" + (def.hat ? " hat" : "");
+      el.style.background = bg;
+      el.innerHTML = html;
+      el.onclick = () => addBlockToWorkspace(def);
+      palette.appendChild(el);
+    });
+  }
+
+  function addBlockToWorkspace(def) {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const newBlock = {
+      uid: "blk_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+      defId: def.id,
+      params: JSON.parse(JSON.stringify(def.params))
+    };
+    if (def.cBlock) newBlock.children = [];
+
+    const targetStack = sp.scripts.find(st => st.id === state.selectedStackId);
+    if (!def.hat && targetStack) {
+      const lastBlock = targetStack.blocks[targetStack.blocks.length - 1];
+      if (lastBlock && lastBlock.children) lastBlock.children.push(newBlock);
+      else targetStack.blocks.push(newBlock);
+    } else {
+      const newStack = {
+        id: "stack_" + Date.now(),
+        x: 35 + (sp.scripts.length * 28) % 210,
+        y: 28 + (sp.scripts.length * 36) % 190,
+        blocks: [newBlock]
+      };
+      sp.scripts.push(newStack);
+      state.selectedStackId = newStack.id;
+    }
+    renderWorkspace();
+  }
+
+  // --- WORKSPACE ---
+  function renderWorkspace() {
+    const ws = document.getElementById("scripts-workspace");
+    const hint = ws.querySelector(".workspace-hint");
+    ws.innerHTML = "";
+    if (hint) ws.appendChild(hint);
+
+    const sp = getActiveSprite();
+    if (!sp) return;
+
+    sp.scripts.forEach(stack => {
+      const stackEl = document.createElement("div");
+      stackEl.className = "script-stack";
+      stackEl.style.left = stack.x + "px";
+      stackEl.style.top = stack.y + "px";
+      if (state.selectedStackId === stack.id) stackEl.style.outline = "2px dashed #4c97ff";
+
+      stackEl.addEventListener("mousedown", (e) => {
+        if (["INPUT", "SELECT", "BUTTON"].includes(e.target.tagName)) return;
+        state.selectedStackId = stack.id;
+        const startMouseX = e.clientX, startMouseY = e.clientY;
+        const origX = stack.x, origY = stack.y;
+        let moved = false;
+
+        function onMove(ev) {
+          const dx = ev.clientX - startMouseX, dy = ev.clientY - startMouseY;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+          stack.x = Math.max(0, origX + dx);
+          stack.y = Math.max(0, origY + dy);
+          stackEl.style.left = stack.x + "px";
+          stackEl.style.top = stack.y + "px";
+        }
+        function onUp() {
+          window.removeEventListener("mousemove", onMove);
+          window.removeEventListener("mouseup", onUp);
+          if (!moved) executeStack(sp, stack, state.runToken);
+          renderWorkspace();
+        }
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
+      });
+
+      stack.blocks.forEach((blk, bIdx) => {
+        stackEl.appendChild(createBlockElement(sp, stack, stack.blocks, blk, bIdx));
+      });
+      ws.appendChild(stackEl);
+    });
+  }
+
+  function createBlockElement(sprite, stack, parentArray, blk, idx) {
+    const def = BLOCK_DEFS.find(d => d.id === blk.defId);
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.flexDirection = "column";
+    if (!def) return wrap;
+
+    const { bg, html } = buildBlockHTML(def, blk.params, true);
+    const row = document.createElement("div");
+    row.className = "stack-block-wrap";
+
+    const el = document.createElement("div");
+    el.className = "s-block" + (def.hat ? " hat" : "");
+    el.style.background = bg;
+    el.innerHTML = html;
+
+    el.querySelectorAll("input, select").forEach(inp => {
+      inp.addEventListener("change", (e) => {
+        const key = e.target.dataset.param;
+        blk.params[key] = e.target.type === "number" ? Number(e.target.value) : e.target.value;
+      });
+    });
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "block-del-btn";
+    delBtn.textContent = "✕";
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      parentArray.splice(idx, 1);
+      if (stack.blocks.length === 0) sprite.scripts = sprite.scripts.filter(s => s.id !== stack.id);
+      renderWorkspace();
+    };
+
+    row.appendChild(el);
+    row.appendChild(delBtn);
+    wrap.appendChild(row);
+
+    if (def.cBlock) {
+      const body = document.createElement("div");
+      body.className = "c-block-body";
+      (blk.children || []).forEach((child, cIdx) => {
+        body.appendChild(createBlockElement(sprite, stack, blk.children, child, cIdx));
+      });
+      const footer = document.createElement("div");
+      footer.className = "c-block-footer";
+      wrap.appendChild(body);
+      wrap.appendChild(footer);
+    }
+    return wrap;
+  }
+
+  // --- EXECUTION ENGINE ---
+  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+  async function executeBlockList(sprite, blocks, token) {
+    for (let i = 0; i < blocks.length; i++) {
+      if (token !== state.runToken) return;
+      const blk = blocks[i];
+      const p = blk.params || {};
+
+      switch (blk.defId) {
+        case "move_steps": {
+          const rad = ((90 - sprite.direction) * Math.PI) / 180;
+          sprite.x = Math.round(sprite.x + Math.cos(rad) * Number(p.steps || 0));
+          sprite.y = Math.round(sprite.y + Math.sin(rad) * Number(p.steps || 0));
+          syncSpritePropsUI();
+          break;
+        }
+        case "turn_right":
+          sprite.direction = ((sprite.direction + Number(p.deg || 0) + 180) % 360) - 180;
+          syncSpritePropsUI();
+          break;
+        case "turn_left":
+          sprite.direction = ((sprite.direction - Number(p.deg || 0) + 180) % 360) - 180;
+          syncSpritePropsUI();
+          break;
+        case "goto_xy":
+          sprite.x = Number(p.x || 0);
+          sprite.y = Number(p.y || 0);
+          syncSpritePropsUI();
+          break;
+        case "glide_xy": {
+          const steps = Math.max(1, Math.round(Number(p.sec || 1) * 30));
+          const sx = sprite.x, sy = sprite.y, tx = Number(p.x || 0), ty = Number(p.y || 0);
+          for (let s = 1; s <= steps; s++) {
+            if (token !== state.runToken) return;
+            sprite.x = Math.round(sx + ((tx - sx) * s) / steps);
+            sprite.y = Math.round(sy + ((ty - sy) * s) / steps);
+            syncSpritePropsUI();
+            await sleep(33);
+          }
+          break;
+        }
+        case "point_dir":
+          sprite.direction = Number(p.dir || 90);
+          syncSpritePropsUI();
+          break;
+        case "change_x":
+          sprite.x += Number(p.dx || 0);
+          syncSpritePropsUI();
+          break;
+        case "change_y":
+          sprite.y += Number(p.dy || 0);
+          syncSpritePropsUI();
+          break;
+        case "bounce_edge":
+          if (Math.abs(sprite.x) > 210 || Math.abs(sprite.y) > 150) {
+            sprite.direction = -sprite.direction;
+            sprite.x = Math.max(-210, Math.min(210, sprite.x));
+            sprite.y = Math.max(-150, Math.min(150, sprite.y));
+            syncSpritePropsUI();
+          }
+          break;
+        case "say_sec":
+          sprite.sayText = String(p.text || "");
+          await sleep(Number(p.sec || 1) * 1000);
+          if (token === state.runToken) sprite.sayText = "";
+          break;
+        case "say":
+          sprite.sayText = String(p.text || "");
+          break;
+        case "think_sec":
+          sprite.sayText = "💭 " + String(p.text || "");
+          await sleep(Number(p.sec || 1) * 1000);
+          if (token === state.runToken) sprite.sayText = "";
+          break;
+        case "next_costume":
+          if (sprite.costumes.length > 0) sprite.costumeIndex = (sprite.costumeIndex + 1) % sprite.costumes.length;
+          break;
+        case "change_size":
+          sprite.size = Math.max(10, Math.min(400, sprite.size + Number(p.ds || 0)));
+          syncSpritePropsUI();
+          break;
+        case "set_size":
+          sprite.size = Math.max(10, Math.min(400, Number(p.size || 100)));
+          syncSpritePropsUI();
+          break;
+        case "show":
+          sprite.visible = true;
+          syncSpritePropsUI();
+          break;
+        case "hide":
+          sprite.visible = false;
+          syncSpritePropsUI();
+          break;
+        case "play_sound":
+          playSpriteSound(sprite, p.sound);
+          break;
+        case "play_note":
+          playMidiNote(p.note, p.sec);
+          await sleep(Number(p.sec || 0.3) * 1000);
+          break;
+        case "wait":
+          await sleep(Number(p.sec || 1) * 1000);
+          break;
+        case "repeat": {
+          const count = Math.max(0, Number(p.times || 0));
+          for (let r = 0; r < count; r++) {
+            if (token !== state.runToken) return;
+            await executeBlockList(sprite, blk.children || [], token);
+            await sleep(16);
+          }
+          break;
+        }
+        case "forever":
+          while (token === state.runToken) {
+            await executeBlockList(sprite, blk.children || [], token);
+            await sleep(25);
+          }
+          break;
+        case "if_edge":
+          if (Math.abs(sprite.x) > 200 || Math.abs(sprite.y) > 145) {
+            await executeBlockList(sprite, blk.children || [], token);
+          }
+          break;
+        case "ask_wait":
+          sprite.sayText = String(p.q || "?");
+          await sleep(800);
+          sprite.sayText = "";
+          break;
+        case "random_move":
+          sprite.x = Math.floor(Math.random() * 400) - 200;
+          sprite.y = Math.floor(Math.random() * 280) - 140;
+          syncSpritePropsUI();
+          break;
+        case "random_score": {
+          const mn = Number(p.min || 1), mx = Number(p.max || 10);
+          state.score += Math.floor(Math.random() * (mx - mn + 1)) + mn;
+          document.getElementById("var-score-display").textContent = state.score;
+          break;
+        }
+        case "set_score":
+          state.score = Number(p.val || 0);
+          document.getElementById("var-score-display").textContent = state.score;
+          break;
+        case "change_score":
+          state.score += Number(p.val || 1);
+          document.getElementById("var-score-display").textContent = state.score;
+          break;
+      }
+      await sleep(10);
+    }
+  }
+
+  async function executeStack(sprite, stack, token) {
+    if (!stack.blocks || !stack.blocks.length) return;
+    await executeBlockList(sprite, stack.blocks, token);
+  }
+
+  function startGreenFlag() {
+    state.runToken++;
+    const token = state.runToken;
+    document.getElementById("status-text").textContent = "🟢 Выполняется...";
+    state.sprites.forEach(sp => {
+      sp.scripts.forEach(st => {
+        if (st.blocks[0] && st.blocks[0].defId === "when_flag") executeStack(sp, st, token);
+      });
+    });
+  }
+
+  function stopAllScripts() {
+    state.runToken++;
+    state.sprites.forEach(sp => { sp.sayText = ""; });
+    document.getElementById("status-text").textContent = "🛑 Остановлено";
+  }
+
+  // --- STAGE LOOP ---
+  function renderStageLoop() {
+    const canvas = document.getElementById("stage-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, 480, 360);
+
+    const bgImg = getCachedImage(state.backdrop.dataUrl);
+    if (bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, 480, 360);
+    else { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 480, 360); }
+
+    state.sprites.forEach(sp => {
+      if (!sp.visible) return;
+      const costume = sp.costumes[sp.costumeIndex] || sp.costumes[0];
+      if (!costume) return;
+
+      const cx = 240 + sp.x;
+      const cy = 180 - sp.y;
+      const scale = sp.size / 100;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (sp.rotationStyle === "all around") ctx.rotate(((sp.direction - 90) * Math.PI) / 180);
+      else if (sp.rotationStyle === "left-right" && sp.direction < 0) ctx.scale(-1, 1);
+      ctx.scale(scale, scale);
+
+      const img = getCachedImage(costume.dataUrl);
+      if (img && img.complete) ctx.drawImage(img, -60, -60, 120, 120);
+      ctx.restore();
+
+      if (sp.sayText) {
+        ctx.save();
+        ctx.font = "bold 13px Helvetica, Arial, sans-serif";
+        const tw = ctx.measureText(sp.sayText).width;
+        const bw = Math.max(60, tw + 22);
+        const bx = Math.min(470 - bw, Math.max(10, cx + 24));
+        const by = Math.max(10, cy - 80);
+
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#ccc";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, 32, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#333";
+        ctx.fillText(sp.sayText, bx + 11, by + 21);
+        ctx.restore();
+      }
+    });
+
+    requestAnimationFrame(renderStageLoop);
+  }
+
+  const stageCanvas = document.getElementById("stage-canvas");
+  stageCanvas.addEventListener("mousedown", (e) => {
+    const rect = stageCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left - 240;
+    const my = 180 - (e.clientY - rect.top);
+
+    for (let i = state.sprites.length - 1; i >= 0; i--) {
+      const sp = state.sprites[i];
+      if (!sp.visible) continue;
+      if (Math.hypot(mx - sp.x, my - sp.y) < 50 * (sp.size / 100)) {
+        selectSprite(sp.id);
+        sp.scripts.forEach(st => {
+          if (st.blocks[0] && st.blocks[0].defId === "when_clicked") executeStack(sp, st, state.runToken);
+        });
+        const offX = mx - sp.x, offY = my - sp.y;
+        function onDrag(ev) {
+          sp.x = Math.round(Math.max(-230, Math.min(230, ev.clientX - rect.left - 240 - offX)));
+          sp.y = Math.round(Math.max(-170, Math.min(170, 180 - (ev.clientY - rect.top) - offY)));
+          syncSpritePropsUI();
+        }
+        function onStop() {
+          window.removeEventListener("mousemove", onDrag);
+          window.removeEventListener("mouseup", onStop);
+        }
+        window.addEventListener("mousemove", onDrag);
+        window.addEventListener("mouseup", onStop);
+        break;
+      }
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+    const k = e.code === "Space" ? "space" : e.key;
+    state.sprites.forEach(sp => {
+      sp.scripts.forEach(st => {
+        if (st.blocks[0] && st.blocks[0].defId === "when_key" && st.blocks[0].params.key === k) {
+          executeStack(sp, st, state.runToken);
+        }
+      });
+    });
+  });
+
+  // --- SPRITES UI ---
+  function selectSprite(id) {
+    state.activeSpriteId = id;
+    state.activeCostumeIndex = 0;
+    state.activeSoundIndex = 0;
+    state.selectedStackId = null;
+    syncSpritePropsUI();
+    renderSpritesGrid();
+    renderWorkspace();
+    renderPalette();
+    renderCostumesTab();
+    renderSoundsTab();
+  }
+
+  function syncSpritePropsUI() {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    document.getElementById("prop-name").value = sp.name;
+    document.getElementById("prop-x").value = sp.x;
+    document.getElementById("prop-y").value = sp.y;
+    document.getElementById("prop-size").value = sp.size;
+    document.getElementById("prop-dir").value = sp.direction;
+    document.getElementById("prop-visible").checked = sp.visible;
+    document.getElementById("prop-rot-style").value = sp.rotationStyle;
+  }
+
+  function renderSpritesGrid() {
+    const grid = document.getElementById("sprites-grid");
+    grid.innerHTML = "";
+    state.sprites.forEach(sp => {
+      const thumb = document.createElement("div");
+      thumb.className = "sprite-thumb" + (sp.id === state.activeSpriteId ? " active" : "");
+      const imgUrl = sp.costumes[0] ? sp.costumes[0].dataUrl : "";
+      thumb.innerHTML = `<button class="sprite-del">✕</button><img src="${imgUrl}"><div class="s-title">${sp.name}</div>`;
+      thumb.onclick = (e) => {
+        if (e.target.classList.contains("sprite-del")) {
+          if (state.sprites.length <= 1) { showToast("Нельзя удалить единственный спрайт"); return; }
+          state.sprites = state.sprites.filter(s => s.id !== sp.id);
+          selectSprite(state.sprites[0].id);
+          return;
+        }
+        selectSprite(sp.id);
+      };
+      grid.appendChild(thumb);
+    });
+  }
+
+  document.getElementById("prop-name").oninput = (e) => { const sp = getActiveSprite(); if (sp) { sp.name = e.target.value; renderSpritesGrid(); } };
+  document.getElementById("prop-x").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.x = Number(e.target.value); };
+  document.getElementById("prop-y").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.y = Number(e.target.value); };
+  document.getElementById("prop-size").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.size = Math.max(10, Math.min(400, Number(e.target.value))); };
+  document.getElementById("prop-dir").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.direction = Number(e.target.value); };
+  document.getElementById("prop-visible").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.visible = e.target.checked; };
+  document.getElementById("prop-rot-style").onchange = (e) => { const sp = getActiveSprite(); if (sp) sp.rotationStyle = e.target.value; };
+
+  // --- COSTUMES PAINT ---
+  const paintCanvas = document.getElementById("paint-canvas");
+  const pCtx = paintCanvas.getContext("2d");
+
+  function renderCostumesTab() {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const list = document.getElementById("costumes-list");
+    list.innerHTML = "";
+    sp.costumes.forEach((c, idx) => {
+      const card = document.createElement("div");
+      card.className = "costume-card" + (idx === state.activeCostumeIndex ? " active" : "");
+      card.innerHTML = `<img src="${c.dataUrl}"><div class="c-name">${c.name}</div>`;
+      card.onclick = () => { state.activeCostumeIndex = idx; sp.costumeIndex = idx; renderCostumesTab(); };
+      list.appendChild(card);
+    });
+    const activeCostume = sp.costumes[state.activeCostumeIndex] || sp.costumes[0];
+    pCtx.clearRect(0, 0, 320, 320);
+    if (activeCostume) {
+      const img = new Image();
+      img.onload = () => pCtx.drawImage(img, 0, 0, 320, 320);
+      img.src = activeCostume.dataUrl;
+    }
+  }
+
+  function savePaintToCostume() {
+    const sp = getActiveSprite();
+    if (!sp || !sp.costumes[state.activeCostumeIndex]) return;
+    const url = paintCanvas.toDataURL("image/png");
+    sp.costumes[state.activeCostumeIndex].dataUrl = url;
+    delete imageCache[url];
+    renderCostumesTab();
+    renderSpritesGrid();
+  }
+
+  document.querySelectorAll(".tool-btn").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.paintTool = btn.dataset.tool;
+    };
+  });
+
+  paintCanvas.onmousedown = (e) => {
+    const rect = paintCanvas.getBoundingClientRect();
+    state.isDrawing = true;
+    state.startX = e.clientX - rect.left;
+    state.startY = e.clientY - rect.top;
+    state.snapshot = pCtx.getImageData(0, 0, 320, 320);
+    pCtx.lineCap = "round";
+    pCtx.lineJoin = "round";
+    pCtx.lineWidth = Number(document.getElementById("brush-size").value);
+    pCtx.strokeStyle = document.getElementById("brush-color").value;
+    pCtx.fillStyle = document.getElementById("brush-color").value;
+    if (state.paintTool === "brush" || state.paintTool === "eraser") {
+      pCtx.globalCompositeOperation = state.paintTool === "eraser" ? "destination-out" : "source-over";
+      pCtx.beginPath();
+      pCtx.moveTo(state.startX, state.startY);
+    }
+  };
+
+  paintCanvas.onmousemove = (e) => {
+    if (!state.isDrawing) return;
+    const rect = paintCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    if (state.paintTool === "brush" || state.paintTool === "eraser") {
+      pCtx.lineTo(x, y); pCtx.stroke();
+    } else if (state.paintTool === "rect") {
+      pCtx.globalCompositeOperation = "source-over";
+      pCtx.putImageData(state.snapshot, 0, 0);
+      pCtx.fillRect(state.startX, state.startY, x - state.startX, y - state.startY);
+    } else if (state.paintTool === "circle") {
+      pCtx.globalCompositeOperation = "source-over";
+      pCtx.putImageData(state.snapshot, 0, 0);
+      pCtx.beginPath();
+      pCtx.arc(state.startX, state.startY, Math.hypot(x - state.startX, y - state.startY), 0, Math.PI * 2);
+      pCtx.fill();
+    }
+  };
+
+  window.addEventListener("mouseup", () => {
+    if (state.isDrawing) {
+      state.isDrawing = false;
+      pCtx.globalCompositeOperation = "source-over";
+      savePaintToCostume();
+    }
+  });
+
+  document.getElementById("btn-clear-canvas").onclick = () => { pCtx.clearRect(0, 0, 320, 320); savePaintToCostume(); };
+  document.getElementById("btn-gen-texture").onclick = () => {
+    pCtx.fillStyle = document.getElementById("brush-color").value;
+    for (let i = 0; i < 40; i++) {
+      pCtx.globalAlpha = 0.35 + Math.random() * 0.5;
+      pCtx.beginPath();
+      pCtx.arc(40 + Math.random() * 240, 40 + Math.random() * 240, 4 + Math.random() * 14, 0, Math.PI * 2);
+      pCtx.fill();
+    }
+    pCtx.globalAlpha = 1;
+    savePaintToCostume();
+    showToast("Текстура нанесена!");
+  };
+
+  document.getElementById("btn-new-costume").onclick = () => {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const blank = document.createElement("canvas");
+    blank.width = 120; blank.height = 120;
+    sp.costumes.push({ name: "Костюм " + (sp.costumes.length + 1), dataUrl: blank.toDataURL("image/png") });
+    state.activeCostumeIndex = sp.costumes.length - 1;
+    renderCostumesTab();
+  };
+
+  document.getElementById("btn-export-png").onclick = () => {
+    const a = document.createElement("a");
+    a.download = "costume.png";
+    a.href = paintCanvas.toDataURL("image/png");
+    a.click();
+  };
+
+  // --- SOUNDS ---
+  function drawWaveform(isRec) {
+    const wc = document.getElementById("wave-canvas");
+    const wctx = wc.getContext("2d");
+    wctx.clearRect(0, 0, wc.width, wc.height);
+    wctx.strokeStyle = isRec ? "#ff3d00" : "#cf63cf";
+    wctx.lineWidth = 2.5;
+    wctx.beginPath();
+    for (let x = 0; x < wc.width; x += 4) {
+      const y = wc.height / 2 + (isRec ? (20 + Math.random() * 35) : (Math.sin(x * 0.05) * 30 * Math.sin(x * 0.008)));
+      if (x === 0) wctx.moveTo(x, y); else wctx.lineTo(x, y);
+    }
+    wctx.stroke();
+  }
+
+  function renderSoundsTab() {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const list = document.getElementById("sounds-list");
+    list.innerHTML = "";
+    sp.sounds.forEach((snd, idx) => {
+      const item = document.createElement("div");
+      item.className = "sound-item" + (idx === state.activeSoundIndex ? " active" : "");
+      item.innerHTML = `🔊 <b>${snd.name}</b>`;
+      item.onclick = () => { state.activeSoundIndex = idx; renderSoundsTab(); };
+      list.appendChild(item);
+    });
+    const activeSnd = sp.sounds[state.activeSoundIndex] || sp.sounds[0];
+    document.getElementById("current-sound-title").textContent = "Звук: " + (activeSnd ? activeSnd.name : "Нет");
+    drawWaveform(false);
+  }
+
+  document.getElementById("btn-play-sound").onclick = () => {
+    const sp = getActiveSprite();
+    const snd = sp && (sp.sounds[state.activeSoundIndex] || sp.sounds[0]);
+    if (snd) playSpriteSound(sp, snd.name);
+  };
+
+  document.querySelectorAll("[data-synth]").forEach(btn => {
+    btn.onclick = () => {
+      const sp = getActiveSprite();
+      if (!sp) return;
+      const type = btn.dataset.synth;
+      const names = { meow: "Мяу", laser: "Лазер", coin: "Монетка", drum: "Барабан", jump: "Прыжок" };
+      sp.sounds.push({ name: names[type] + " " + (sp.sounds.length + 1), synth: type, audioDataUrl: null });
+      state.activeSoundIndex = sp.sounds.length - 1;
+      playSynthSound(type);
+      renderSoundsTab();
+      renderPalette();
+    };
+  });
+
+  let mediaRecorder = null, audioChunks = [];
+  const recBtn = document.getElementById("btn-record-sound");
+  recBtn.onclick = async () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      recBtn.textContent = "🎙️ Запись";
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const sp = getActiveSprite();
+          if (sp) {
+            sp.sounds.push({ name: "Запись " + (sp.sounds.length + 1), synth: null, audioDataUrl: reader.result });
+            state.activeSoundIndex = sp.sounds.length - 1;
+            renderSoundsTab();
+            renderPalette();
+            showToast("Запись сохранена!");
+          }
+        };
+        reader.readAsDataURL(new Blob(audioChunks, { type: "audio/webm" }));
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      recBtn.textContent = "⏹️ Стоп";
+      drawWaveform(true);
+    } catch (e) {
+      showToast("Микрофон недоступен");
+    }
+  };
+
+  document.getElementById("btn-export-sound").onclick = () => {
+    const sp = getActiveSprite();
+    const snd = sp && sp.sounds[state.activeSoundIndex];
+    if (!snd) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(snd, null, 2)], { type: "application/json" }));
+    a.download = `${snd.name}.json`;
+    a.click();
+  };
+
+  // --- LOCALSTORAGE LIBRARY & PROJECTS ---
+  function loadLocalLibrary() {
+    let projects = [], sprites = [], sounds = [];
+    try {
+      projects = JSON.parse(localStorage.getItem(LS_PROJECTS_LIST_KEY) || "[]");
+      sprites = JSON.parse(localStorage.getItem(LS_SPRITES_KEY) || "[]");
+      sounds = JSON.parse(localStorage.getItem(LS_SOUNDS_KEY) || "[]");
+    } catch (e) {}
+
+    const prGrid = document.getElementById("lib-projects-grid");
+    prGrid.innerHTML = projects.length ? "" : "<p style='font-size:12px;color:#777;'>Нет сохранённых проектов. Нажмите «💾 Сохранить» в шапке.</p>";
+    projects.forEach((proj, idx) => {
+      const card = document.createElement("div");
+      card.className = "lib-card";
+      const thumb = proj.sprites && proj.sprites[0] && proj.sprites[0].costumes[0] ? proj.sprites[0].costumes[0].dataUrl : "";
+      card.innerHTML = `
+        <img src="${thumb}">
+        <b style="font-size:13px;">${proj.projectName}</b>
+        <span style="font-size:10px;color:#888;">${proj.updatedAt || ""}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-success" style="padding:4px 9px;">📂 Открыть</button>
+          <button class="btn btn-danger" style="padding:4px 8px;">✕</button>
+        </div>
+      `;
+      card.querySelector(".btn-success").onclick = () => loadProjectData(proj);
+      card.querySelector(".btn-danger").onclick = () => {
+        projects.splice(idx, 1);
+        localStorage.setItem(LS_PROJECTS_LIST_KEY, JSON.stringify(projects));
+        loadLocalLibrary();
+      };
+      prGrid.appendChild(card);
+    });
+
+    const spGrid = document.getElementById("lib-sprites-grid");
+    spGrid.innerHTML = sprites.length ? "" : "<p style='font-size:12px;color:#777;'>Библиотека спрайтов пуста.</p>";
+    sprites.forEach((item, idx) => {
+      const card = document.createElement("div");
+      card.className = "lib-card";
+      const preview = item.costumes && item.costumes[0] ? item.costumes[0].dataUrl : "";
+      card.innerHTML = `
+        <img src="${preview}">
+        <b style="font-size:13px;">${item.name}</b>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-primary" style="padding:4px 8px;">+ На сцену</button>
+          <button class="btn btn-danger" style="padding:4px 8px;">✕</button>
+        </div>
+      `;
+      card.querySelector(".btn-primary").onclick = () => {
+        const clone = JSON.parse(JSON.stringify(item));
+        clone.id = "sprite_" + Date.now();
+        state.sprites.push(clone);
+        selectSprite(clone.id);
+        showToast("Спрайт добавлен!");
+      };
+      card.querySelector(".btn-danger").onclick = () => {
+        sprites.splice(idx, 1);
+        localStorage.setItem(LS_SPRITES_KEY, JSON.stringify(sprites));
+        loadLocalLibrary();
+      };
+      spGrid.appendChild(card);
+    });
+
+    const sndGrid = document.getElementById("lib-sounds-grid");
+    sndGrid.innerHTML = sounds.length ? "" : "<p style='font-size:12px;color:#777;'>Библиотека звуков пуста.</p>";
+    sounds.forEach((snd, idx) => {
+      const card = document.createElement("div");
+      card.className = "lib-card";
+      card.innerHTML = `
+        <div style="font-size:28px;">🔊</div>
+        <b style="font-size:13px;">${snd.name}</b>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-light" style="padding:4px 8px;">▶️</button>
+          <button class="btn btn-primary" style="padding:4px 8px;">+ Спрайту</button>
+          <button class="btn btn-danger" style="padding:4px 8px;">✕</button>
+        </div>
+      `;
+      card.querySelector(".btn-light").onclick = () => {
+        if (snd.audioDataUrl) new Audio(snd.audioDataUrl).play().catch(() => {});
+        else playSynthSound(snd.synth || "meow");
+      };
+      card.querySelector(".btn-primary").onclick = () => {
+        const sp = getActiveSprite();
+        if (sp) { sp.sounds.push(JSON.parse(JSON.stringify(snd))); renderSoundsTab(); renderPalette(); showToast("Звук добавлен!"); }
+      };
+      card.querySelector(".btn-danger").onclick = () => {
+        sounds.splice(idx, 1);
+        localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(sounds));
+        loadLocalLibrary();
+      };
+      sndGrid.appendChild(card);
+    });
+  }
+
+  document.getElementById("btn-save-sprite-lib").onclick = () => {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const list = JSON.parse(localStorage.getItem(LS_SPRITES_KEY) || "[]");
+    list.push(JSON.parse(JSON.stringify(sp)));
+    localStorage.setItem(LS_SPRITES_KEY, JSON.stringify(list));
+    loadLocalLibrary();
+    showToast(`Спрайт «${sp.name}» сохранён!`);
+  };
+
+  document.getElementById("btn-save-sound-lib").onclick = () => {
+    const sp = getActiveSprite();
+    const snd = sp && sp.sounds[state.activeSoundIndex];
+    if (!snd) return;
+    const list = JSON.parse(localStorage.getItem(LS_SOUNDS_KEY) || "[]");
+    list.push(JSON.parse(JSON.stringify(snd)));
+    localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(list));
+    loadLocalLibrary();
+    showToast(`Звук «${snd.name}» сохранён!`);
+  };
+
+  // --- MODALS & HEADER BUTTONS ---
+  const modal = document.getElementById("library-modal");
+  const modalGrid = document.getElementById("modal-grid");
+
+  document.getElementById("btn-new-project").onclick = createNewProject;
+  document.getElementById("btn-save-project").onclick = saveProjectToEnvironment;
+
+  document.getElementById("btn-open-projects").onclick = () => {
+    document.getElementById("modal-title").textContent = "Открыть сохранённый проект";
+    modalGrid.innerHTML = "";
+    const projects = JSON.parse(localStorage.getItem(LS_PROJECTS_LIST_KEY) || "[]");
+    if (!projects.length) {
+      modalGrid.innerHTML = "<p style='grid-column:1/-1;font-size:13px;color:#666;'>Пока нет сохранённых проектов. Нажмите «💾 Сохранить» в верхней панели.</p>";
+    } else {
+      projects.forEach((proj, idx) => {
+        const thumb = proj.sprites && proj.sprites[0] && proj.sprites[0].costumes[0] ? proj.sprites[0].costumes[0].dataUrl : "";
+        const item = document.createElement("div");
+        item.className = "preset-item";
+        item.innerHTML = `
+          <img src="${thumb}">
+          <div style="font-size:12px;font-weight:800;margin-top:4px;">${proj.projectName}</div>
+          <div style="font-size:10px;color:#888;margin:3px 0;">${proj.updatedAt || ""}</div>
+          <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">
+            <button class="btn btn-success" style="padding:3px 8px;">Открыть</button>
+            <button class="btn btn-danger" style="padding:3px 7px;">✕</button>
+          </div>
+        `;
+        item.querySelector(".btn-success").onclick = () => {
+          loadProjectData(proj);
+          modal.classList.remove("open");
+        };
+        item.querySelector(".btn-danger").onclick = (e) => {
+          e.stopPropagation();
+          projects.splice(idx, 1);
+          localStorage.setItem(LS_PROJECTS_LIST_KEY, JSON.stringify(projects));
+          loadLocalLibrary();
+          document.getElementById("btn-open-projects").click();
+        };
+        modalGrid.appendChild(item);
+      });
+    }
+    modal.classList.add("open");
+  };
+
+  document.getElementById("btn-export-project").onclick = () => {
+    const payload = serializeCurrentProject();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+    a.download = `${payload.projectName}.json`;
+    a.click();
+  };
+
+  document.getElementById("input-import-project").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        loadProjectData(data);
+      } catch (err) {
+        showToast("Ошибка чтения файла проекта");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  document.getElementById("btn-export-sprite").onclick = () => {
+    const sp = getActiveSprite();
+    if (!sp) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(sp, null, 2)], { type: "application/json" }));
+    a.download = `${sp.name}.json`;
+    a.click();
+  };
+
+  document.getElementById("input-import-sprite").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    if (file.type.startsWith("image/")) {
+      reader.onload = () => {
+        const newSp = {
+          id: "sprite_" + Date.now(),
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          x: 0, y: 0, direction: 90, size: 100, visible: true, rotationStyle: "all around", sayText: "",
+          costumeIndex: 0, costumes: [{ name: "Костюм 1", dataUrl: reader.result }],
+          sounds: [{ name: "Мяу", synth: "meow" }], scripts: []
+        };
+        state.sprites.push(newSp);
+        selectSprite(newSp.id);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = () => {
+        try {
+          const sp = JSON.parse(reader.result);
+          sp.id = "sprite_" + Date.now();
+          state.sprites.push(sp);
+          selectSprite(sp.id);
+        } catch (err) { showToast("Ошибка чтения спрайта"); }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  document.getElementById("btn-add-sprite").onclick = () => {
+    document.getElementById("modal-title").textContent = "Выберите спрайт";
+    modalGrid.innerHTML = "";
+    [
+      { name: "Кот Скретч", tex: "cat1" },
+      { name: "Робот", tex: "robot" },
+      { name: "Звезда", tex: "star" },
+      { name: "Кристалл", tex: "gem" },
+      { name: "Ракета", tex: "rocket" }
+    ].forEach(p => {
+      const url = createRichTexture(p.tex);
+      const item = document.createElement("div");
+      item.className = "preset-item";
+      item.innerHTML = `<img src="${url}"><div style="font-size:12px;font-weight:700;margin-top:6px;">${p.name}</div>`;
+      item.onclick = () => {
+        const newSp = {
+          id: "sprite_" + Date.now(),
+          name: p.name,
+          x: Math.floor(Math.random() * 100) - 50,
+          y: Math.floor(Math.random() * 80) - 40,
+          direction: 90, size: 100, visible: true, rotationStyle: "all around", sayText: "",
+          costumeIndex: 0, costumes: [{ name: p.name, dataUrl: url }],
+          sounds: [{ name: "Монетка", synth: "coin" }], scripts: []
+        };
+        state.sprites.push(newSp);
+        selectSprite(newSp.id);
+        modal.classList.remove("open");
+      };
+      modalGrid.appendChild(item);
+    });
+    modal.classList.add("open");
+  };
+
+  document.getElementById("btn-backdrop").onclick = () => {
+    document.getElementById("modal-title").textContent = "Выберите фон сцены";
+    modalGrid.innerHTML = "";
+    [
+      { name: "Природа", id: "nature" },
+      { name: "Космос", id: "space" },
+      { name: "Координатная сетка", id: "grid" },
+      { name: "Белый лист", id: "white" }
+    ].forEach(b => {
+      const url = createBackdropTexture(b.id);
+      const item = document.createElement("div");
+      item.className = "preset-item";
+      item.innerHTML = `<img src="${url}" style="width:100px;height:75px;object-fit:cover;border-radius:4px;"><div style="font-size:12px;font-weight:700;margin-top:6px;">${b.name}</div>`;
+      item.onclick = () => {
+        state.backdrop = { name: b.name, dataUrl: url };
+        modal.classList.remove("open");
+        showToast(`Фон «${b.name}» установлен`);
+      };
+      modalGrid.appendChild(item);
+    });
+    modal.classList.add("open");
+  };
+
+  document.getElementById("btn-close-modal").onclick = () => modal.classList.remove("open");
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      tab.classList.add("active");
+      const target = tab.dataset.tab;
+      document.getElementById("tab-" + target).classList.add("active");
+      if (target === "costumes") renderCostumesTab();
+      if (target === "sounds") renderSoundsTab();
+      if (target === "library") loadLocalLibrary();
+    };
+  });
+
+  document.getElementById("btn-green-flag").onclick = startGreenFlag;
+  document.getElementById("btn-stop-all").onclick = stopAllScripts;
+
+  // --- INIT ---
+  function initApp() {
+    let loaded = false;
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_ACTIVE_PROJECT_KEY) || "null");
+      if (saved && saved.sprites && saved.sprites.length > 0) {
+        state.currentProjectId = saved.id || ("proj_" + Date.now());
+        state.projectName = saved.projectName || "Мой проект";
+        document.getElementById("project-name").value = state.projectName;
+        if (saved.backdrop) state.backdrop = saved.backdrop;
+        state.score = Number(saved.score || 0);
+        document.getElementById("var-score-display").textContent = state.score;
+        state.sprites = saved.sprites;
+        loaded = true;
+      }
+    } catch (e) {}
+
+    if (!loaded) {
+      state.currentProjectId = "proj_" + Date.now();
+      state.sprites = [createDefaultCatSprite()];
+    }
+
+    renderCategories();
+    selectSprite(state.sprites[0].id);
+    loadLocalLibrary();
+    renderStageLoop();
+  }
+
+  initApp();
+})();
+</script>
+</body>
+</html>
